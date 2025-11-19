@@ -12,7 +12,8 @@
   },
   "dependencies": {
     "@prisma/adapter-mariadb": "^6.18.0",
-    "@prisma/client": "6.18.0",
+    "@prisma/client": "6.19.0",
+    "argon2": "^0.44.0",
     "axios": "^1.12.2",
     "cookie-parser": "^1.4.7",
     "db": "link:src/generated/prisma",
@@ -24,6 +25,8 @@
     "http-errors": "^2.0.0",
     "mariadb": "^3.4.5",
     "morgan": "^1.10.1",
+    "passport": "^0.7.0",
+    "passport-local": "^1.0.0",
     "pug": "^3.0.3"
   },
   "devDependencies": {
@@ -36,10 +39,12 @@
     "@types/http-errors": "^2.0.5",
     "@types/morgan": "^1.9.10",
     "@types/node": "22",
+    "@types/passport": "^1.0.17",
+    "@types/passport-local": "^1.0.38",
     "@types/pug": "^2.0.10",
     "postcss": "^8.5.6",
     "postcss-cli": "^11.0.1",
-    "prisma": "^6.18.0",
+    "prisma": "^6.19.0",
     "tailwindcss": "^4.1.14",
     "typescript": "^5.5.3"
   }

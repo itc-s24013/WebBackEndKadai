@@ -3,11 +3,12 @@ import express, {NextFunction, Request, Response} from 'express'
 import path from 'node:path'
 import cookieParser from 'cookie-parser'
 import logger from 'morgan'
-import session from 'express-session'
 
+import passport from './libs/auth.js'
 import indexRouter from './routes/index.js'
-import usersRouter from './routes/users.js'
-import helloRouter from './routes/hello.js'
+import userRouter from './routes/user.js'
+import helloRouter from './routes/book.js'
+import session from 'express-session'
 
 const app = express()
 
@@ -24,13 +25,16 @@ app.use(session({
     secret: 'oeiajejlaigjaleaivkgjehgoe',
     resave: false,
     saveUninitialized: false,
+    name: 'mb_sid',
     cookie: {
-        maxAge: 60 * 60 * 1000
+        maxAge: 1000 * 60 * 60, // 1時間
+        httpOnly: true,
     }
 }))
+app.use(passport.authenticate('session'))
 
 app.use('/', indexRouter)
-app.use('/users', usersRouter)
+app.use('/user', userRouter)
 app.use('/hello', helloRouter)
 
 // catch 404 and forward to error handler

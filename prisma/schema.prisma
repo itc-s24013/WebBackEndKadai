@@ -9,18 +9,62 @@ generator client {
   output   = "../src/generated/prisma"
 }
 
-model User {
-  id        Int      @id @default(autoincrement())
-  name      String   @db.VarChar(128) @unique
-  pass      String   @db.VarChar(256)
-  mail      String   @db.VarChar(256)
-  age       Int      @default(0)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
 datasource db {
   provider          = "mysql"
   url               = env("DATABASE_URL")
   shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
+}
+
+model author {
+  id         String  @id @default(uuid(7)) @db.VarChar(36)
+  name       String  @db.VarChar(128)
+  is_deleted Boolean @default(false)
+  book       book[]
+
+  @@index([name])
+}
+
+model publisher {
+  id         String  @id @default(uuid(7)) @db.VarChar(36)
+  name       String  @db.VarChar(128)
+  is_deleted Boolean @default(false)
+  book       book[]
+
+  @@index([name])
+}
+
+model user {
+  id         String       @id @default(uuid(7)) @db.VarChar(36)
+  email      String       @unique @db.VarChar(254)
+  name       String       @db.VarChar(512)
+  password   String       @db.VarChar(256)
+  is_admin   Boolean      @default(false)
+  created_at DateTime     @default(now())
+  updated_at DateTime
+  is_deleted Boolean      @default(false)
+  rental_log rental_log[]
+}
+
+model book {
+  isbn              BigInt       @id @db.UnsignedBigInt
+  title             String       @db.VarChar(512)
+  author_id         String       @db.VarChar(36)
+  author            author       @relation(fields: [author_id], references: [id])
+  publisher_id      String       @db.VarChar(36)
+  publisher         publisher    @relation(fields: [publisher_id], references: [id])
+  publication_year  Int          @db.UnsignedInt
+  publication_month Int          @db.UnsignedTinyInt
+  is_deleted        Boolean      @default(false)
+  rental_log        rental_log[]
+}
+
+model rental_log {
+  id            String    @id @default(uuid(7)) @db.VarChar(36)
+  book_isbn     BigInt    @db.UnsignedBigInt
+  book          book      @relation(fields: [book_isbn], references: [isbn])
+  user_id       String    @db.VarChar(36)
+  user          user      @relation(fields: [user_id], references: [id])
+  checkout_date DateTime
+  due_date      DateTime
+  returned_date DateTime?
 }
