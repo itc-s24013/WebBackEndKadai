@@ -27,7 +27,6 @@ router.get('/list/{:page}', async (req, res) => {
             name: book.author?.name ?? ""
         },
         publication_year_month: (book.publication_year+"/"+book.publication_month)
-
     }))
     const count = await db.book.count({
         where: { is_deleted: false },
@@ -37,6 +36,30 @@ router.get('/list/{:page}', async (req, res) => {
         current: page,
         last_page: maxPage,
         books: books,
+    })
+})
+
+router.get('/detail/:isbn', async (req, res) => {
+    const isbn = BigInt(req.params.isbn)
+    const bookRaw = await (db.book.findMany({
+        where: {
+            isbn: isbn,
+            is_deleted: false
+        },
+        include: {
+            author: true
+        }
+    }))
+    const book = bookRaw.map((book) => ({
+        isbn: book.isbn.toString(),
+        title: book.title,
+        author: {
+            name: book.author?.name ?? ""
+        },
+        publication_year_month: (book.publication_year+"/"+book.publication_month)
+    }))
+    return res.status(200).json({
+        book: book
     })
 })
 
