@@ -50,6 +50,9 @@ router.get('/detail/:isbn', async (req, res) => {
             author: true
         }
     }))
+    if (bookRaw.length === 0) {
+        return res.status(404).json({ message: "書籍が見つかりません" })
+    }
     const book = bookRaw.map((book) => ({
         isbn: book.isbn.toString(),
         title: book.title,
@@ -62,5 +65,7 @@ router.get('/detail/:isbn', async (req, res) => {
         book: book
     })
 })
+
+
 
 export default router
