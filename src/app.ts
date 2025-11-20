@@ -3,7 +3,6 @@ import express, {NextFunction, Request, Response} from 'express'
 import path from 'node:path'
 import cookieParser from 'cookie-parser'
 import logger from 'morgan'
-
 import passport from './libs/auth.js'
 import indexRouter from './routes/index.js'
 import userRouter from './routes/user.js'
@@ -22,7 +21,7 @@ app.use(express.urlencoded({extended: false})) // 送られたデータをわか
 app.use(cookieParser()) // クッキーを使いやすくする
 app.use(express.static(path.join(import.meta.dirname, 'public'))) // 静的なコンテンツはここにまとめられてます
 app.use(session({
-    secret: 'oeiajejlaigjaleaivkgjehgoe',
+    secret: process.env.SESSION_SECRET || 'secret key',
     resave: false,
     saveUninitialized: false,
     name: 'mb_sid',

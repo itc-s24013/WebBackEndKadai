@@ -7,7 +7,7 @@ import passport from "../libs/auth.js";
 const router = Router()
 
 router.post('/login',
-    passport.authenticate('local', {}),
+    passport.authenticate('local'),
     async (req, res) => {
         res.json({message: 'ok'})
     }
@@ -71,5 +71,25 @@ router.post('/register',
             })
         }
     })
+
+router.get('/history', async (req: Request, res) => {
+    if (!req.isAuthenticated()) {
+        return res.status(401).json({
+            reason: 'Not authenticated'
+        })
+    }
+    const userId = req.user.id
+    const histories = await prisma.rental_log.findMany({
+        where: {
+            user_id: userId
+        },
+        orderBy : {
+            checkout_date: 'desc'
+        }
+    })
+    res.status(200).json({
+        histories
+    })
+})
 
 export default router
