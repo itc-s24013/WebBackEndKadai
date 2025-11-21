@@ -1,5 +1,6 @@
 import express, { Router } from 'express'
 import db from '../libs/db.js'
+import prisma from "../libs/db.js";
 
 const router = Router()
 
@@ -66,6 +67,52 @@ router.get('/detail/:isbn', async (req, res) => {
     })
 })
 
-
+router.post('/rental', async (req, res) => {
+    if (!req.isAuthenticated()) {
+        return res.status(401).json({
+            reason: 'Not authenticated'
+        })
+    }
+    const book_id = BigInt(req.body.book_id)
+    const book = await prisma.book.findUnique({
+        where: {
+            isbn: book_id
+        }
+    })
+    if (!book || book.is_deleted) {
+        return res.status(404).json({
+            message: "書籍が見つかりません"
+        })
+    }
+    const histories = await prisma.rental_log.findFirst({
+        where: {
+            book_isbn: book_id
+        },
+        orderBy : {
+            checkout_date: 'desc',
+        }
+    })
+    if (histories && !histories.returned_date) {
+        return res.status(409).json({
+            message: "既に貸出中です"
+        })
+    }
+    const today = new Date()
+    const rental = await prisma.rental_log.create({
+        data: {
+            book_isbn: book_id,
+            user_id: req.user.id,
+            checkout_date: today,
+            due_date: new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000),
+        }
+    })
+    res.status(200).json(
+        {
+            id: rental.id,
+            checkout_date: rental.checkout_date,
+            due_date: rental.due_date,
+        }
+    )
+})
 
 export default router
