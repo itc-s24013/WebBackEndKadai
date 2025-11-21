@@ -115,4 +115,46 @@ router.post('/rental', async (req, res) => {
     )
 })
 
+router.put('/return', async (req, res) => {
+    const rental_id = req.body.id
+    if (!req.isAuthenticated()) {
+        return res.status(401).json({
+            reason: 'Not authenticated'
+        })
+    }
+    const rental = await prisma.rental_log.findUnique({
+        where: {
+            id: rental_id
+        }
+    })
+    if (!rental) {
+        return res.status(404).json({
+            message: "存在しない貸出記録です"
+        })
+    }
+    if (!(rental.user_id === req.user?.id)) {
+        return res.status(403).json({
+            message: "他のユーザの貸出書籍です"
+        })
+    }
+    if (rental.returned_date) {
+        return res.status(409).json({
+            message: "既に返却済みの貸出記録です"
+        })
+    }
+    const today = new Date()
+    await prisma.rental_log.update({
+        where: {
+            id: rental_id
+        },
+        data: {
+            returned_date: today
+        }
+    })
+    return res.status(200).json({
+        id: rental_id,
+        returned_date: today
+    })
+})
+
 export default router
