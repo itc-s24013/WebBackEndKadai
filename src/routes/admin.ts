@@ -96,4 +96,33 @@ router.delete('/author', async (req, res) => {
     }
 })
 
+router.post('/publisher', async (req, res) => {
+    const name = req.body.name
+    if (!req.isAuthenticated()) {
+        return res.status(400).json({
+            reason: 'ログインをしてください'
+        })
+    }
+    if (req.user.is_admin !== true) {
+        return res.status(403).json({
+            reason: '管理者権限がありません'
+        })
+    }
+    try {
+        const newPublisher = await prisma.publisher.create({
+            data: {
+                name: name
+            }
+        })
+        return res.status(200).json({
+            id: newPublisher.id,
+            name: newPublisher.name
+        })
+    } catch (e) {
+        return res.status(400).json({
+            reason: e
+        })
+    }
+})
+
 export default router
