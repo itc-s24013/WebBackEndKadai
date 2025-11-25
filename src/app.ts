@@ -7,6 +7,7 @@ import passport from './libs/auth.js'
 import indexRouter from './routes/index.js'
 import userRouter from './routes/user.js'
 import bookRouter from './routes/book.js'
+import adminRouter from './routes/admin.js'
 import session from 'express-session'
 
 const app = express()
@@ -35,6 +36,7 @@ app.use(passport.authenticate('session'))
 app.use('/', indexRouter)
 app.use('/user', userRouter)
 app.use('/book', bookRouter)
+app.use('/admin', adminRouter)
 
 // catch 404 and forward to error handler
 app.use(async (req: Request, res: Response, next: NextFunction) => {

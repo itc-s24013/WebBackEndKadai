@@ -8,12 +8,18 @@ declare module 'express-session' {
 }
 
 declare global {
-  namespace Express {
-    interface User {
-      id: string
-      name: string
+    namespace Express {
+        interface User {
+            id: string
+            email: string
+            name: string
+            password: string
+            is_admin: boolean
+            created_at: Date
+            updated_at: Date
+            is_deleted: boolean
+        }
     }
-  }
 }
 
 declare module 'passport' {

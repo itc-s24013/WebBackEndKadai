@@ -22,7 +22,7 @@ passport.use(new LocalStrategy({
         {message: 'メールアドレスまたはパスワードが違います'}
       )
     }
-    return done(null, {id: user.id, name: user.name})
+    return done(null, user)
   } catch (e) {
     return done(e)
   }
