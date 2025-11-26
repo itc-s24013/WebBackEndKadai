@@ -1,25 +1,23 @@
-import {Router, Request} from 'express'
-import {PrismaMariaDb} from '@prisma/adapter-mariadb'
-import {Prisma, PrismaClient} from 'db'
+import express, { Router } from 'express'
+import prisma from "../libs/db.js";
 
 const router = Router()
-const adapter = new PrismaMariaDb({
-    host: 'localhost',
-    port: 3306,
-    user: 'prisma',
-    password: 'prisma',
-    database: 'chap6',
-    connectionLimit: 5
-})
-const prisma = new PrismaClient({adapter})
 
-interface UserPrams {
-    id?: string
-    name?: string
-    min?: string
-    max?: string
-    mail?: string
-    page?: string
-    prev?: string
-    next?: string
-}
+router.get('/author', async (req, res) => {
+    const keyword = req.body.keyword
+    const authors = await prisma.author.findMany({
+        where: {
+            name: {
+                contains: keyword
+            }
+        }
+    })
+    return res.status(200).json({
+        authors: authors.map((a) => ({
+            id: a.id,
+            name: a.name
+        }))
+    })
+})
+
+export default router
