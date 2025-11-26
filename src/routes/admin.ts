@@ -259,4 +259,78 @@ router.post('/book', async (req, res) => {
         })
     }
 })
+
+router.put('/book', async (req, res) => {
+    const {isbn, title, author_id, publisher_id, publication_year, publication_month} = req.body
+    if (!req.isAuthenticated()) {
+        return res.status(400).json({
+            reason: 'ログインをしてください'
+        })
+    }
+    if (req.user.is_admin !== true) {
+        return res.status(403).json({
+            reason: '管理者権限がありません'
+        })
+    }
+    const book = await prisma.book.findUnique({
+            where: {
+                isbn: BigInt(isbn)
+            }
+        }
+    )
+    const author = await prisma.author.findUnique({
+        where: {
+            id: author_id,
+            is_deleted: false
+        }
+    })
+    const publisher = await prisma.publisher.findUnique({
+        where: {
+            id: publisher_id,
+            is_deleted: false
+        }
+    })
+    if (!publisher) {
+        return res.status(403).json({
+            reason: '存在しない出版社IDです'
+        })
+    }
+    if (!author) {
+        return res.status(403).json({
+            reason: '存在しない著者IDです'
+        })
+    }
+    if (!book) {
+        return res.status(400).json({
+            reason: '存在しないISBNです'
+        })
+    }
+    if (publication_month < 1 || publication_month > 12) {
+        return res.status(400).json({
+            reason: '出版月は1から12の間で指定してください'
+        })
+    }
+    try {
+        await prisma.book.update({
+            where: {
+                isbn: BigInt(isbn)
+            },
+            data: {
+                title: title,
+                author_id: author_id,
+                publisher_id: publisher_id,
+                publication_year: publication_year,
+                publication_month: publication_month,
+            }
+        })
+        return res.status(200).json({
+            message: '書籍情報を更新しました'
+        })
+    } catch (e) {
+        return res.status(400).json({
+            reason: e
+        })
+    }
+})
+
 export default router
