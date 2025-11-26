@@ -20,4 +20,21 @@ router.get('/author', async (req, res) => {
     })
 })
 
+router.get('/publisher', async (req, res) => {
+    const keyword = req.body.keyword
+    const publishers = await prisma.publisher.findMany({
+        where: {
+            name: {
+                contains: keyword
+            }
+        }
+    })
+    return res.status(200).json({
+        publishers: publishers.map((p) => ({
+            id: p.id,
+            name: p.name
+        }))
+    })
+})
+
 export default router
