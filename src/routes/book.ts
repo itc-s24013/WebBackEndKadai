@@ -22,7 +22,7 @@ router.get('/list/{:page}', async (req, res) => {
         }
     })
     const books = booksRaw.map((book) => ({
-        isbn: book.isbn.toString(),
+        isbn: Number(book.isbn),
         title: book.title,
         author: {
             name: book.author?.name ?? ""
@@ -42,7 +42,7 @@ router.get('/list/{:page}', async (req, res) => {
 
 router.get('/detail/:isbn', async (req, res) => {
     const isbn = BigInt(req.params.isbn)
-    const bookRaw = await (db.book.findMany({
+    const book = await (db.book.findUnique({
         where: {
             isbn: isbn,
             is_deleted: false
@@ -51,26 +51,23 @@ router.get('/detail/:isbn', async (req, res) => {
             author: true
         }
     }))
-    if (bookRaw.length === 0) {
+    if (!book) {
         return res.status(404).json({ message: "書籍が見つかりません" })
     }
-    const book = bookRaw.map((book) => ({
-        isbn: book.isbn.toString(),
+    return res.status(200).json({
+        isbn: Number(book.isbn),
         title: book.title,
         author: {
             name: book.author?.name ?? ""
         },
         publication_year_month: (book.publication_year+"/"+book.publication_month)
-    }))
-    return res.status(200).json({
-        book: book
     })
 })
 
 router.post('/rental', async (req, res) => {
     if (!req.isAuthenticated()) {
         return res.status(401).json({
-            reason: 'Not authenticated'
+            reason: 'ログインしてください'
         })
     }
     const book_id = BigInt(req.body.book_id)
