@@ -1,4 +1,4 @@
-import express, { Router } from 'express'
+import express, {Router} from 'express'
 import prisma from "../libs/db.js";
 
 const router = Router()
@@ -189,4 +189,69 @@ router.delete('/publisher', async (req, res) => {
     }
 })
 
-export default router
+router.post('/book', async (req, res) => {
+    const {isbn, title, author_id, publisher_id, publication_year, publication_month} = req.body
+    if (!req.isAuthenticated()) {
+        return res.status(400).json({
+            reason: 'ログインをしてください'
+        })
+    }
+    if (req.user.is_admin !== true) {
+        return res.status(403).json({
+            reason: '管理者権限がありません'
+        })
+    }
+    const book = await prisma.book.findUnique({
+            where: {
+                isbn: BigInt(isbn)
+            }
+        }
+    )
+    const author = await prisma.author.findUnique({
+        where: {
+            id: author_id,
+            is_deleted: false
+        }
+    })
+    const publisher = await prisma.publisher.findUnique({
+        where: {
+            id: publisher_id,
+            is_deleted: false
+        }
+    })
+    if (!publisher) {
+        return res.status(403).json({
+            reason: '存在しない出版社IDです'
+        })
+    }
+    if (!author) {
+        return res.status(403).json({
+            reason: '存在しない著者IDです'
+        })
+    }
+    if (book) {
+        return res.status(400).json({
+            reason: '既に存在するISBNです'
+        })
+    }
+    try {
+        await prisma.book.create({
+            data: {
+                isbn: BigInt(isbn),
+                title: title,
+                author_id: author_id,
+                publisher_id: publisher_id,
+                publication_year: publication_year,
+                publication_month: publication_month,
+            }
+        })
+        return res.status(200).json({
+            message: '書籍を登録しました'
+        })
+    } catch (e) {
+        return res.status(400).json({
+            reason: e
+        })
+    }
+})
+    export default router
