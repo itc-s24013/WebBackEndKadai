@@ -108,4 +108,30 @@ router.get('/history', async (req: Request, res) => {
     })
 })
 
+router.put('/change', async (req, res) => {
+    const name = req.body.name
+    if (!req.isAuthenticated()) {
+        return res.status(401).json({
+            reason: 'Not authenticated'
+        })
+    }
+    try {
+        const updatedUser = await prisma.user.update({
+            where: {
+                id: req.user.id
+            },
+            data: {
+                name: name,
+            }
+        })
+        return res.status(200).json({
+            message: '更新しました'
+        })
+    } catch (e) {
+        return res.status(400).json({
+            reason: e
+        })
+    }
+})
+
 export default router
