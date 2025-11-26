@@ -158,4 +158,35 @@ router.put('/publisher', async (req, res) => {
     }
 })
 
+router.delete('/publisher', async (req, res) => {
+    const publisher_id = req.body.id
+    if (!req.isAuthenticated()) {
+        return res.status(400).json({
+            reason: 'ログインをしてください'
+        })
+    }
+    if (req.user.is_admin !== true) {
+        return res.status(403).json({
+            reason: '管理者権限がありません'
+        })
+    }
+    try {
+        await prisma.publisher.update({
+            where: {
+                id: publisher_id
+            },
+            data: {
+                is_deleted: true
+            }
+        })
+        return res.status(200).json({
+            message: '出版社情報を削除しました'
+        })
+    } catch (e) {
+        return res.status(400).json({
+            reason: e
+        })
+    }
+})
+
 export default router
