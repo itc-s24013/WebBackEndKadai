@@ -234,6 +234,11 @@ router.post('/book', async (req, res) => {
             reason: '既に存在するISBNです'
         })
     }
+    if (publication_month < 1 || publication_month > 12) {
+        return res.status(400).json({
+            reason: '出版月は1から12の間で指定してください'
+        })
+    }
     try {
         await prisma.book.create({
             data: {
@@ -254,4 +259,4 @@ router.post('/book', async (req, res) => {
         })
     }
 })
-    export default router
+export default router
