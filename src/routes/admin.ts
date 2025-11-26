@@ -125,4 +125,37 @@ router.post('/publisher', async (req, res) => {
     }
 })
 
+router.put('/publisher', async (req, res) => {
+    const publisher_id = req.body.id
+    const name = req.body.name
+    if (!req.isAuthenticated()) {
+        return res.status(400).json({
+            reason: 'ログインをしてください'
+        })
+    }
+    if (req.user.is_admin !== true) {
+        return res.status(403).json({
+            reason: '管理者権限がありません'
+        })
+    }
+    try {
+        const updatedPublisher = await prisma.publisher.update({
+            where: {
+                id: publisher_id
+            },
+            data: {
+                name: name
+            }
+        })
+        return res.status(200).json({
+            id: updatedPublisher.id,
+            name: updatedPublisher.name
+        })
+    } catch (e) {
+        return res.status(400).json({
+            reason: e
+        })
+    }
+})
+
 export default router
