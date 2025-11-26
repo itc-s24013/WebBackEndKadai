@@ -333,4 +333,51 @@ router.put('/book', async (req, res) => {
     }
 })
 
+router.delete('/book', async (req, res) => {
+    const isbn = BigInt(req.body.isbn)
+    if (!req.isAuthenticated()) {
+        return res.status(400).json({
+            reason: 'ログインをしてください'
+        })
+    }
+    if (req.user.is_admin !== true) {
+        return res.status(403).json({
+            reason: '管理者権限がありません'
+        })
+    }
+    const book = await prisma.book.findUnique({
+            where: {
+                isbn: isbn
+            }
+        }
+    )
+    if (!book) {
+        return res.status(400).json({
+            reason: '存在しないISBNです'
+        })
+    }
+    if (book.is_deleted) {
+        return res.status(400).json({
+            reason: '既に削除されている書籍です'
+        })
+    }
+    try {
+        await prisma.book.update({
+            where: {
+                isbn: isbn
+            },
+            data: {
+                is_deleted: true
+            }
+        })
+        return res.status(200).json({
+            message: '書籍情報を削除しました'
+        })
+    } catch (e) {
+        return res.status(400).json({
+            reason: e
+        })
+    }
+})
+
 export default router
