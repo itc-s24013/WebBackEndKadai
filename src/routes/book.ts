@@ -1,5 +1,4 @@
 import express, { Router } from 'express'
-import db from '../libs/db.js'
 import prisma from "../libs/db.js";
 
 const router = Router()
@@ -7,7 +6,7 @@ const router = Router()
 router.get('/list/{:page}', async (req, res) => {
     const page = parseInt(req.params.page || '1')
     const ITEMS_PER_PAGE = 5
-    const booksRaw = await db.book.findMany({
+    const booksRaw = await prisma.book.findMany({
         skip: (page - 1) * ITEMS_PER_PAGE,
         take: ITEMS_PER_PAGE,
         where: {
@@ -29,7 +28,7 @@ router.get('/list/{:page}', async (req, res) => {
         },
         publication_year_month: (book.publication_year+"/"+book.publication_month)
     }))
-    const count = await db.book.count({
+    const count = await prisma.book.count({
         where: { is_deleted: false },
     })
     const maxPage = Math.ceil(count / ITEMS_PER_PAGE)
@@ -42,7 +41,7 @@ router.get('/list/{:page}', async (req, res) => {
 
 router.get('/detail/:isbn', async (req, res) => {
     const isbn = BigInt(req.params.isbn)
-    const book = await (db.book.findUnique({
+    const book = await (prisma.book.findUnique({
         where: {
             isbn: isbn,
             is_deleted: false
