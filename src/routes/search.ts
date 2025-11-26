@@ -9,7 +9,8 @@ router.get('/author', async (req, res) => {
         where: {
             name: {
                 contains: keyword
-            }
+            },
+            is_deleted: false
         }
     })
     return res.status(200).json({
@@ -26,7 +27,8 @@ router.get('/publisher', async (req, res) => {
         where: {
             name: {
                 contains: keyword
-            }
+            },
+            is_deleted: false
         }
     })
     return res.status(200).json({
