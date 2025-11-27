@@ -84,21 +84,17 @@ router.get('/history', async (req: Request, res) => {
         },
         orderBy: {
             checkout_date: 'desc'
-        }
-    })
-    const book = await prisma.book.findMany({
-        where: {
-            isbn: {
-                in: histories.map(history => history.book_isbn)
-            }
+        },
+        include: {
+            book: true
         }
     })
     res.status(200).json({
         histories: histories.map(history => ({
             id: history.id,
             book: {
-                isbn: history.book_isbn.toString(),
-                name: book.find(b => b.isbn === history.book_isbn)?.title || '',
+                isbn: Number(history.book_isbn),
+                name: history.book.title,
             },
             checkout_date: history.checkout_date,
             due_date: history.due_date,
