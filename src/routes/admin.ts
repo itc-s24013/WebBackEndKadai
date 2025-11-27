@@ -3,18 +3,24 @@ import prisma from "../libs/db.js";
 
 const router = Router()
 
-router.post('/author', async (req, res) => {
-    const name = req.body.name
+router.use(async (req, res, next) => {
+    // ログイン中かどうかをチェックするミドルウェア
     if (!req.isAuthenticated()) {
         return res.status(400).json({
             reason: 'ログインをしてください'
         })
     }
+
     if (req.user.is_admin !== true) {
         return res.status(403).json({
             reason: '管理者権限がありません'
         })
     }
+    next() // ログイン中なので次の処理へ
+})
+
+router.post('/author', async (req, res) => {
+    const name = req.body.name
     try {
         const newAuthor = await prisma.author.create({
             data: {
@@ -35,16 +41,6 @@ router.post('/author', async (req, res) => {
 router.put('/author', async (req, res) => {
     const author_id = req.body.id
     const name = req.body.name
-    if (!req.isAuthenticated()) {
-        return res.status(400).json({
-            reason: 'ログインをしてください'
-        })
-    }
-    if (req.user.is_admin !== true) {
-        return res.status(403).json({
-            reason: '管理者権限がありません'
-        })
-    }
     try {
         const updatedAuthor = await prisma.author.update({
             where: {
@@ -67,16 +63,6 @@ router.put('/author', async (req, res) => {
 
 router.delete('/author', async (req, res) => {
     const author_id = req.body.id
-    if (!req.isAuthenticated()) {
-        return res.status(400).json({
-            reason: 'ログインをしてください'
-        })
-    }
-    if (req.user.is_admin !== true) {
-        return res.status(403).json({
-            reason: '管理者権限がありません'
-        })
-    }
     try {
         await prisma.author.update({
             where: {
@@ -98,16 +84,6 @@ router.delete('/author', async (req, res) => {
 
 router.post('/publisher', async (req, res) => {
     const name = req.body.name
-    if (!req.isAuthenticated()) {
-        return res.status(400).json({
-            reason: 'ログインをしてください'
-        })
-    }
-    if (req.user.is_admin !== true) {
-        return res.status(403).json({
-            reason: '管理者権限がありません'
-        })
-    }
     try {
         const newPublisher = await prisma.publisher.create({
             data: {
@@ -128,16 +104,6 @@ router.post('/publisher', async (req, res) => {
 router.put('/publisher', async (req, res) => {
     const publisher_id = req.body.id
     const name = req.body.name
-    if (!req.isAuthenticated()) {
-        return res.status(400).json({
-            reason: 'ログインをしてください'
-        })
-    }
-    if (req.user.is_admin !== true) {
-        return res.status(403).json({
-            reason: '管理者権限がありません'
-        })
-    }
     try {
         const updatedPublisher = await prisma.publisher.update({
             where: {
@@ -160,16 +126,6 @@ router.put('/publisher', async (req, res) => {
 
 router.delete('/publisher', async (req, res) => {
     const publisher_id = req.body.id
-    if (!req.isAuthenticated()) {
-        return res.status(400).json({
-            reason: 'ログインをしてください'
-        })
-    }
-    if (req.user.is_admin !== true) {
-        return res.status(403).json({
-            reason: '管理者権限がありません'
-        })
-    }
     try {
         await prisma.publisher.update({
             where: {
@@ -191,16 +147,6 @@ router.delete('/publisher', async (req, res) => {
 
 router.post('/book', async (req, res) => {
     const {isbn, title, author_id, publisher_id, publication_year, publication_month} = req.body
-    if (!req.isAuthenticated()) {
-        return res.status(400).json({
-            reason: 'ログインをしてください'
-        })
-    }
-    if (req.user.is_admin !== true) {
-        return res.status(403).json({
-            reason: '管理者権限がありません'
-        })
-    }
     const book = await prisma.book.findUnique({
             where: {
                 isbn: BigInt(isbn)
@@ -244,16 +190,6 @@ router.post('/book', async (req, res) => {
 
 router.put('/book', async (req, res) => {
     const {isbn, title, author_id, publisher_id, publication_year, publication_month} = req.body
-    if (!req.isAuthenticated()) {
-        return res.status(400).json({
-            reason: 'ログインをしてください'
-        })
-    }
-    if (req.user.is_admin !== true) {
-        return res.status(403).json({
-            reason: '管理者権限がありません'
-        })
-    }
     const book = await prisma.book.findUnique({
             where: {
                 isbn: BigInt(isbn)
