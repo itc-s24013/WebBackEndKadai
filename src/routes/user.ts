@@ -58,7 +58,6 @@ router.post('/register',
                     email: req.body.email,
                     name: req.body.name,
                     password: hashedPassword,
-                    updated_at: new Date(),
                 }
             })
             return (
@@ -83,7 +82,7 @@ router.get('/history', async (req: Request, res) => {
         where: {
             user_id: userId
         },
-        orderBy : {
+        orderBy: {
             checkout_date: 'desc'
         }
     })
@@ -116,7 +115,7 @@ router.put('/change', async (req, res) => {
         })
     }
     try {
-        const updatedUser = await prisma.user.update({
+        await prisma.user.update({
             where: {
                 id: req.user.id
             },
