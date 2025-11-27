@@ -17,14 +17,15 @@ router.get('/list/{:page}', async (req, res) => {
             { publication_month: 'desc' }
         ],
         include: {
-            author: true
+            author: true,
+            publisher: true,
         }
     })
     const books = booksRaw.map((book) => ({
         isbn: Number(book.isbn),
         title: book.title,
         author: {
-            name: book.author?.name ?? ""
+            name: book.author.name
         },
         publication_year_month: (book.publication_year+"/"+book.publication_month)
     }))
@@ -47,7 +48,8 @@ router.get('/detail/:isbn', async (req, res) => {
             is_deleted: false
         },
         include: {
-            author: true
+            author: true,
+            publisher: true,
         }
     }))
     if (!book) {
@@ -57,7 +59,7 @@ router.get('/detail/:isbn', async (req, res) => {
         isbn: Number(book.isbn),
         title: book.title,
         author: {
-            name: book.author?.name ?? ""
+            name: book.author.name
         },
         publication_year_month: (book.publication_year+"/"+book.publication_month)
     })
@@ -72,10 +74,11 @@ router.post('/rental', async (req, res) => {
     const book_id = BigInt(req.body.book_id)
     const book = await prisma.book.findUnique({
         where: {
-            isbn: book_id
+            isbn: book_id,
+            is_deleted: false
         }
     })
-    if (!book || book.is_deleted) {
+    if (!book) {
         return res.status(404).json({
             message: "書籍が見つかりません"
         })
@@ -115,7 +118,7 @@ router.put('/return', async (req, res) => {
     const rental_id = req.body.id
     if (!req.isAuthenticated()) {
         return res.status(401).json({
-            reason: 'Not authenticated'
+            reason: 'ログインしてください'
         })
     }
     const rental = await prisma.rental_log.findUnique({

@@ -207,28 +207,6 @@ router.post('/book', async (req, res) => {
             }
         }
     )
-    const author = await prisma.author.findUnique({
-        where: {
-            id: author_id,
-            is_deleted: false
-        }
-    })
-    const publisher = await prisma.publisher.findUnique({
-        where: {
-            id: publisher_id,
-            is_deleted: false
-        }
-    })
-    if (!publisher) {
-        return res.status(403).json({
-            reason: '存在しない出版社IDです'
-        })
-    }
-    if (!author) {
-        return res.status(403).json({
-            reason: '存在しない著者IDです'
-        })
-    }
     if (book) {
         return res.status(400).json({
             reason: '既に存在するISBNです'
@@ -248,6 +226,10 @@ router.post('/book', async (req, res) => {
                 publisher_id: publisher_id,
                 publication_year: publication_year,
                 publication_month: publication_month,
+            },
+            include: {
+                author: true,
+                publisher: true
             }
         })
         return res.status(200).json({
@@ -278,28 +260,6 @@ router.put('/book', async (req, res) => {
             }
         }
     )
-    const author = await prisma.author.findUnique({
-        where: {
-            id: author_id,
-            is_deleted: false
-        }
-    })
-    const publisher = await prisma.publisher.findUnique({
-        where: {
-            id: publisher_id,
-            is_deleted: false
-        }
-    })
-    if (!publisher) {
-        return res.status(403).json({
-            reason: '存在しない出版社IDです'
-        })
-    }
-    if (!author) {
-        return res.status(403).json({
-            reason: '存在しない著者IDです'
-        })
-    }
     if (!book) {
         return res.status(400).json({
             reason: '存在しないISBNです'
@@ -321,6 +281,10 @@ router.put('/book', async (req, res) => {
                 publisher_id: publisher_id,
                 publication_year: publication_year,
                 publication_month: publication_month,
+            },
+            include: {
+                author: true,
+                publisher: true
             }
         })
         return res.status(200).json({
@@ -347,18 +311,14 @@ router.delete('/book', async (req, res) => {
     }
     const book = await prisma.book.findUnique({
             where: {
-                isbn: isbn
+                isbn: isbn,
+                is_deleted: false
             }
         }
     )
     if (!book) {
         return res.status(400).json({
             reason: '存在しないISBNです'
-        })
-    }
-    if (book.is_deleted) {
-        return res.status(400).json({
-            reason: '既に削除されている書籍です'
         })
     }
     try {

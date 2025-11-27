@@ -74,7 +74,7 @@ router.post('/register',
 router.get('/history', async (req: Request, res) => {
     if (!req.isAuthenticated()) {
         return res.status(401).json({
-            reason: 'Not authenticated'
+            reason: 'ログインしてください'
         })
     }
     const userId = req.user.id
