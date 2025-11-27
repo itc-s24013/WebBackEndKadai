@@ -9,7 +9,7 @@ passport.use(new LocalStrategy({
 }, async (username, password, done) => {
   try {
     // ユーザー情報をとってくる
-    const user = await prisma.user.findUnique({where: {email: username}});
+    const user = await prisma.user.findUnique({where: {email: username, is_deleted: false}});
     if (!user) {
       // ユーザー情報がないということはログイン失敗
       return done(null, false,
