@@ -97,21 +97,27 @@ router.post('/rental', async (req, res) => {
         })
     }
     const today = new Date()
-    const rental = await prisma.rental_log.create({
-        data: {
-            book_isbn: book_id,
-            user_id: req.user.id,
-            checkout_date: today,
-            due_date: new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000),
-        }
-    })
-    res.status(200).json(
-        {
-            id: rental.id,
-            checkout_date: rental.checkout_date,
-            due_date: rental.due_date,
-        }
-    )
+    try {
+        const rental = await prisma.rental_log.create({
+            data: {
+                book_isbn: book_id,
+                user_id: req.user.id,
+                checkout_date: today,
+                due_date: new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000),
+            }
+        })
+        res.status(200).json(
+            {
+                id: rental.id,
+                checkout_date: rental.checkout_date,
+                due_date: rental.due_date,
+            }
+        )
+    } catch (e) {
+        return res.status(400).json({
+            reason: e
+        })
+    }
 })
 
 router.put('/return', async (req, res) => {
@@ -142,18 +148,25 @@ router.put('/return', async (req, res) => {
         })
     }
     const today = new Date()
-    await prisma.rental_log.update({
-        where: {
-            id: rental_id
-        },
-        data: {
+    try {
+        await prisma.rental_log.update({
+            where: {
+                id: rental_id
+            },
+            data: {
+                returned_date: today
+            }
+        })
+        return res.status(200).json({
+            id: rental_id,
             returned_date: today
-        }
-    })
-    return res.status(200).json({
-        id: rental_id,
-        returned_date: today
-    })
+        })
+    } catch (e) {
+        return res.status(400).json({
+            reason: e
+        })
+    }
+
 })
 
 export default router
