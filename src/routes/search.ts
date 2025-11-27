@@ -13,6 +13,9 @@ router.get('/author', async (req, res) => {
             is_deleted: false
         }
     })
+    if(authors.length === 0) {
+        return res.status(404).json({ message: '著者が見つかりませんでした。' });
+    }
     return res.status(200).json({
         authors: authors.map((a) => ({
             id: a.id,
@@ -31,6 +34,9 @@ router.get('/publisher', async (req, res) => {
             is_deleted: false
         }
     })
+    if(publishers.length === 0) {
+        return res.status(404).json({ message: '出版社が見つかりませんでした。' });
+    }
     return res.status(200).json({
         publishers: publishers.map((p) => ({
             id: p.id,
