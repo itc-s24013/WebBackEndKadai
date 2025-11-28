@@ -163,6 +163,28 @@ router.post('/book', async (req, res) => {
             reason: '出版月は1から12の間で指定してください'
         })
     }
+    const author = await prisma.author.findUnique({
+        where: {
+            id: author_id,
+            is_deleted: false
+        }
+    })
+    if (!author) {
+        return res.status(400).json({
+            reason: '存在しない著者IDです'
+        })
+    }
+    const publisher = await prisma.publisher.findUnique({
+        where: {
+            id: publisher_id,
+            is_deleted: false
+        }
+    })
+    if (!publisher) {
+        return res.status(400).json({
+            reason: '存在しない出版社IDです'
+        })
+    }
     try {
         await prisma.book.create({
             data: {
@@ -204,6 +226,28 @@ router.put('/book', async (req, res) => {
     if (publication_month < 1 || publication_month > 12) {
         return res.status(400).json({
             reason: '出版月は1から12の間で指定してください'
+        })
+    }
+    const author = await prisma.author.findUnique({
+        where: {
+            id: author_id,
+            is_deleted: false
+        }
+    })
+    if (!author) {
+        return res.status(400).json({
+            reason: '存在しない著者IDです'
+        })
+    }
+    const publisher = await prisma.publisher.findUnique({
+        where: {
+            id: publisher_id,
+            is_deleted: false
+        }
+    })
+    if (!publisher) {
+        return res.status(400).json({
+            reason: '存在しない出版社IDです'
         })
     }
     try {
