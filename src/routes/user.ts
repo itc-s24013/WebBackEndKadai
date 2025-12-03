@@ -86,7 +86,8 @@ router.get('/history', async (req: Request, res) => {
             checkout_date: 'desc'
         },
         include: {
-            book: true
+            book: true,
+            user: true
         }
     })
     res.status(200).json({
