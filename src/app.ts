@@ -13,10 +13,6 @@ import session from 'express-session'
 
 const app = express()
 
-// view engine setup
-app.set('views', path.join(import.meta.dirname, 'views'))
-app.set('view engine', 'pug')
-
 app.use(logger('dev'))
 app.use(express.json()) // パースを自動化する
 app.use(express.urlencoded({extended: false})) // 送られたデータをわかりやすくする
